@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-gradient: linear-gradient(135deg, #EBE8F4 0%, #F5F1EB 40%, #E3E9F8 100%);
+    --panel-bg: rgba(255, 255, 255, 0.75);
+    --panel-border: rgba(255, 255, 255, 0.85);
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --bubble-incoming: #FFFFFF;
+    --bubble-outgoing: linear-gradient(135deg, #6E44FF 0%, #8C65FF 100%);
+    --accent-purple: #6E44FF;
+    --accent-purple-light: #ECE6FA;
+    --text-main: #1E293B;
+    --text-muted: #64748B;
+  }
+
+  .dark {
+    --bg-gradient: radial-gradient(circle at 50% 20%, #15192E 0%, #090C16 60%, #05070D 100%);
+    --panel-bg: rgba(18, 24, 40, 0.78);
+    --panel-border: rgba(255, 255, 255, 0.08);
+    --card-bg: rgba(26, 34, 56, 0.85);
+    --bubble-incoming: #1E273E;
+    --bubble-outgoing: linear-gradient(135deg, #6E44FF 0%, #8C65FF 100%);
+    --accent-purple: #8B5CF6;
+    --accent-purple-light: rgba(139, 92, 246, 0.2);
+    --text-main: #F8FAFC;
+    --text-muted: #94A3B8;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: var(--bg-gradient);
+    color: var(--text-main);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    user-select: none;
+    overflow: hidden;
+  }
+}
+
+/* Ensure complete dark background on root html and body in dark mode */
+html.dark,
+body.dark,
+.dark html,
+.dark body {
+  background: #070A11 !important;
+  background-color: #070A11 !important;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Floating Frosted Glass Panels */
+.glass-panel {
+  background: var(--panel-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.08);
+  transform: translateZ(0);
+}
+
+.dark .glass-panel {
+  box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* Universal Outer Canvas Background */
+.app-outer-canvas {
+  background: 
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(220, 210, 245, 0.7), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 60%, rgba(254, 243, 230, 0.8), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 20% 80%, rgba(225, 238, 252, 0.8), transparent 65%),
+    linear-gradient(135deg, #EBF0F8 0%, #F5F1EB 50%, #ECEBF8 100%);
+  background-color: #EBF0F8;
+  transition: background 0.3s ease, background-color 0.3s ease;
+}
+
+.dark .app-outer-canvas {
+  background: 
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(110, 68, 255, 0.12), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 85% 70%, rgba(105, 230, 255, 0.06), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 15% 85%, rgba(140, 100, 255, 0.06), transparent 65%),
+    linear-gradient(135deg, #070A11 0%, #0B0F19 50%, #05070D 100%) !important;
+  background-color: #070A11 !important;
+}
+
+/* Hardware-Accelerated Smooth Scroll Containers */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  transform: translateZ(0);
+}
+
+/* Chat Timeline Optimized Scrolling: Chrome Compositor-Threaded 120 FPS */
+.chat-timeline-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  transform: translateZ(0);
+  will-change: scroll-position;
+  contain: content;
+}

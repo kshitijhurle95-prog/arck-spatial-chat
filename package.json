@@ -1,0 +1,34 @@
+{
+  "name": "nebula-2046",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NEBULA 2046 - Futuristic, premium, fully functional, real-time messaging platform",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:server": "npm run dev --workspace=@nebula/server",
+    "dev:web": "npm run dev --workspace=@nebula/web",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "db:push": "npm run db:push --workspace=@nebula/server",
+    "db:seed": "npm run db:seed --workspace=@nebula/server",
+    "start": "npm run start --workspace=@nebula/server"
+  },
+  "keywords": [
+    "real-time",
+    "messaging",
+    "webrtc",
+    "socketio",
+    "threejs",
+    "futuristic",
+    "nebula-2046"
+  ],
+  "author": "NEBULA Advanced Systems Laboratory",
+  "license": "MIT",
+  "devDependencies": {
+    "puppeteer-core": "^25.16.0"
+  }
+}
