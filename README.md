@@ -11,6 +11,7 @@
 [![Three.js](https://img.shields.io/badge/Three.js-Spatial_3D-black?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
 [![Prisma ORM](https://img.shields.io/badge/Prisma-6.19-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/Live_Website-Online-success?style=for-the-badge&logo=googlechrome&logoColor=white)](https://kshitijhurle95-prog.github.io/arck-spatial-chat/)
 
 <br />
 
@@ -18,6 +19,7 @@
   <b>ARCK (Nebula 2046)</b> reimagines collaborative social presence through the lens of spatial computing in the year 2046. A production-grade monorepo fusing millisecond-latency WebSocket meshes, peer-to-peer WebRTC video/audio telemetry, synthetic AI copilots, and a translucent Stark-HUD interface design.
 </p>
 
+[🌐 Launch Live Website](https://kshitijhurle95-prog.github.io/arck-spatial-chat/) •
 [Explore Architecture](#-system-architecture) •
 [Visual Showcase](#-visual-showcase) •
 [Quickstart](#-quickstart--local-setup) •
