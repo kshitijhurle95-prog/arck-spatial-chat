@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { UserSummary, UserPreferences, RegisterInput, LoginInput, UpdateProfileInput, UpdatePreferencesInput } from '@nebula/shared';
 import { api, setApiToken, getApiToken } from '../lib/api';
 import { sounds } from '../brand/SoundEffects';
+import { getFallbackDemoAuth, DEFAULT_PREFERENCES } from '../lib/mockData';
 
 interface AuthContextType {
   user: UserSummary | null;
@@ -36,6 +37,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setPreferences(data.preferences);
         sounds.enabled = data.preferences?.soundEnabled ?? true;
       } catch (err) {
+        // If backend API is unreachable, restore cached demo user if present
+        const savedUserJson = localStorage.getItem('arck_demo_user');
+        if (savedUserJson) {
+          try {
+            const parsed = JSON.parse(savedUserJson);
+            setUser(parsed.user);
+            setPreferences(parsed.preferences || DEFAULT_PREFERENCES);
+            sounds.enabled = parsed.preferences?.soundEnabled ?? true;
+            setIsLoading(false);
+            return;
+          } catch {}
+        }
         setApiToken(null);
         setUser(null);
         setPreferences(null);
@@ -50,11 +63,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (input: LoginInput) => {
     setIsLoading(true);
     try {
-      const data = await api.login(input);
+      let data: { token: string; user: UserSummary; preferences: UserPreferences };
+      try {
+        data = await api.login(input);
+      } catch (apiErr) {
+        // Fallback for static hosting (e.g. GitHub Pages) or offline backend
+        console.warn('Backend API login unavailable; activating demo session:', apiErr);
+        data = getFallbackDemoAuth(input.login);
+      }
+
       setApiToken(data.token);
       setUser(data.user);
       setPreferences(data.preferences);
       sounds.enabled = data.preferences?.soundEnabled ?? true;
+      localStorage.setItem('arck_demo_user', JSON.stringify({ user: data.user, preferences: data.preferences }));
     } finally {
       setIsLoading(false);
     }
@@ -63,11 +85,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (input: RegisterInput) => {
     setIsLoading(true);
     try {
-      const data = await api.register(input);
+      let data: { token: string; user: UserSummary; preferences: UserPreferences };
+      try {
+        data = await api.register(input);
+      } catch (apiErr) {
+        console.warn('Backend API register unavailable; activating demo session:', apiErr);
+        data = getFallbackDemoAuth(input.username);
+        data.user.displayName = input.displayName;
+        data.user.email = input.email;
+      }
+
       setApiToken(data.token);
       setUser(data.user);
       setPreferences(data.preferences);
       sounds.enabled = data.preferences?.soundEnabled ?? true;
+      localStorage.setItem('arck_demo_user', JSON.stringify({ user: data.user, preferences: data.preferences }));
     } finally {
       setIsLoading(false);
     }
@@ -77,21 +109,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await api.logout();
     } catch {}
+    localStorage.removeItem('arck_demo_user');
     setApiToken(null);
     setUser(null);
     setPreferences(null);
   };
 
   const updateProfile = async (input: UpdateProfileInput) => {
-    const res = await api.updateProfile(input);
-    setUser((prev) => (prev ? { ...prev, ...res.user } : res.user));
+    try {
+      const res = await api.updateProfile(input);
+      setUser((prev) => (prev ? { ...prev, ...res.user } : res.user));
+    } catch {
+      setUser((prev) => (prev ? { ...prev, ...input } : null));
+    }
   };
 
   const updatePreferences = async (input: UpdatePreferencesInput) => {
-    const res = await api.updatePreferences(input);
-    setPreferences((prev) => (prev ? { ...prev, ...res.preferences } : res.preferences));
-    if (res.preferences.soundEnabled !== undefined) {
-      sounds.enabled = res.preferences.soundEnabled;
+    try {
+      const res = await api.updatePreferences(input);
+      setPreferences((prev) => (prev ? { ...prev, ...res.preferences } : res.preferences));
+      if (res.preferences.soundEnabled !== undefined) {
+        sounds.enabled = res.preferences.soundEnabled;
+      }
+    } catch {
+      setPreferences((prev) => (prev ? { ...prev, ...input } : null));
+      if (input.soundEnabled !== undefined) {
+        sounds.enabled = input.soundEnabled;
+      }
     }
   };
 

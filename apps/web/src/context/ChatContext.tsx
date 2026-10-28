@@ -9,6 +9,7 @@ import { api } from '../lib/api';
 import { useAuth } from './AuthContext';
 import { useSocket } from './SocketContext';
 import { sounds } from '../brand/SoundEffects';
+import { getDemoConversations, getDemoMessages, DEMO_USERS } from '../lib/mockData';
 
 export type ChatFilter = 'all' | 'unread' | 'people' | 'groups';
 
@@ -62,14 +63,21 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user) return;
     try {
       const data = await api.listConversations();
-      setConversations(data.conversations);
-
-      // Auto-select first conversation if none selected
-      if (!activeConversationId && data.conversations.length > 0) {
-        setActiveConversationId(data.conversations[0].id);
+      if (data && data.conversations && data.conversations.length > 0) {
+        setConversations(data.conversations);
+        if (!activeConversationId) {
+          setActiveConversationId(data.conversations[0].id);
+        }
+        return;
       }
+      throw new Error('No backend conversations available');
     } catch (err) {
-      console.error('Failed to load conversations:', err);
+      // Fallback for static hosting (GitHub Pages) or offline backend
+      const demoConvs = getDemoConversations(user.id);
+      setConversations(demoConvs);
+      if (!activeConversationId && demoConvs.length > 0) {
+        setActiveConversationId(demoConvs[0].id);
+      }
     } finally {
       setIsLoadingConversations(false);
     }
@@ -92,7 +100,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     api
       .getMessages(activeConversationId)
       .then((data) => {
-        setMessages(data.messages);
+        if (data && data.messages && data.messages.length > 0) {
+          setMessages(data.messages);
+        } else {
+          setMessages(getDemoMessages(activeConversationId, user?.id || ''));
+        }
         // Mark read
         if (socket?.connected) {
           const lastMsg = data.messages[data.messages.length - 1];
@@ -102,13 +114,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           });
         }
       })
-      .catch((err) => {
-        console.error('Failed to load messages:', err);
+      .catch(() => {
+        // Fallback for static hosting or offline backend
+        setMessages(getDemoMessages(activeConversationId, user?.id || ''));
       })
       .finally(() => {
         setIsLoadingMessages(false);
       });
-  }, [activeConversationId, socket, joinConversationRoom]);
+  }, [activeConversationId, user, socket, joinConversationRoom]);
 
   // 3. Socket Real-Time Listeners
   useEffect(() => {
@@ -301,6 +314,50 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
       );
+    } else {
+      // Offline / Demo Mode: mark delivered and trigger simulated operator reply
+      setTimeout(() => {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === idempotencyKey ? { ...m, status: 'delivered' } : m))
+        );
+      }, 350);
+
+      // Auto-reply simulation for demo mode
+      setTimeout(() => {
+        const replySender =
+          activeConversationId === 'conv_elena'
+            ? DEMO_USERS.elena_rostova
+            : activeConversationId === 'conv_kai'
+            ? DEMO_USERS.kai_chen
+            : DEMO_USERS.sarah_jenkins;
+
+        const replies = [
+          'Transmission received and verified via quantum relay. All parameters nominal.',
+          'Looking fantastic! Telemetry stream is fully synchronized.',
+          'Acknowledged. Spatial link established on sub-space channel 04.',
+          'Confirmed. Proceeding with continuous node synchronization.',
+        ];
+        const randomReply = replies[Math.floor(Math.random() * replies.length)];
+
+        const simMsg: MessageSummary = {
+          id: `sim_${Date.now()}`,
+          conversationId: activeConversationId,
+          senderId: replySender.id,
+          sender: replySender,
+          content: randomReply,
+          type: 'TEXT',
+          isEdited: false,
+          isDeleted: false,
+          isPinned: false,
+          attachments: [],
+          reactions: [],
+          createdAt: new Date().toISOString(),
+          status: 'delivered',
+        };
+
+        setMessages((prev) => [...prev, simMsg]);
+        sounds.playMessageReceived();
+      }, 1600);
     }
   };
 

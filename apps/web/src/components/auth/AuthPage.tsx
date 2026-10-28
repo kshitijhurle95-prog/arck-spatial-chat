@@ -42,12 +42,23 @@ export const AuthPage: React.FC = () => {
     }
   };
 
-  // Quick fill demo user accounts for immediate testing
-  const quickFillUser = (u: string, p = 'Nebula2046!') => {
+  // Instant one-click demo operator session login
+  const handleSelectDemoAccount = async (u: string, p = 'Nebula2046!') => {
     setIsRegister(false);
     setUsername(u);
     setPassword(p);
     setError(null);
+    setIsSubmitting(true);
+    try {
+      await login({
+        login: u,
+        password: p,
+      });
+    } catch (err: any) {
+      setError(err.message || 'Authentication error.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -393,8 +404,9 @@ export const AuthPage: React.FC = () => {
             {/* Alex Vance */}
             <button
               type="button"
-              onClick={() => quickFillUser('alex_vance')}
-              className="p-2.5 rounded-2xl bg-white/70 hover:bg-white border border-[#D5E3F3] hover:border-[#93C5FD] shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] text-left flex items-center gap-2.5 group"
+              disabled={isSubmitting}
+              onClick={() => handleSelectDemoAccount('alex_vance')}
+              className="p-2.5 rounded-2xl bg-white/70 hover:bg-white border border-[#D5E3F3] hover:border-[#93C5FD] shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] text-left flex items-center gap-2.5 group disabled:opacity-60"
             >
               <div className="w-8 h-8 rounded-full bg-[#DBEAFE] border border-[#BFDBFE] text-[#2563EB] flex items-center justify-center shrink-0">
                 <User className="w-4 h-4" strokeWidth={2} />
@@ -410,8 +422,9 @@ export const AuthPage: React.FC = () => {
             {/* Elena R. */}
             <button
               type="button"
-              onClick={() => quickFillUser('elena_rostova')}
-              className="p-2.5 rounded-2xl bg-white/70 hover:bg-white border border-[#D5E3F3] hover:border-[#A7F3D0] shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] text-left flex items-center gap-2.5 group"
+              disabled={isSubmitting}
+              onClick={() => handleSelectDemoAccount('elena_rostova')}
+              className="p-2.5 rounded-2xl bg-white/70 hover:bg-white border border-[#D5E3F3] hover:border-[#A7F3D0] shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] text-left flex items-center gap-2.5 group disabled:opacity-60"
             >
               <div className="w-8 h-8 rounded-full bg-[#D1FAE5] border border-[#A7F3D0] text-[#10B981] flex items-center justify-center shrink-0">
                 <User className="w-4 h-4" strokeWidth={2} />
@@ -427,8 +440,9 @@ export const AuthPage: React.FC = () => {
             {/* Kai Chen */}
             <button
               type="button"
-              onClick={() => quickFillUser('kai_chen')}
-              className="p-2.5 rounded-2xl bg-white/70 hover:bg-white border border-[#D5E3F3] hover:border-[#DDD6FE] shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] text-left flex items-center gap-2.5 group"
+              disabled={isSubmitting}
+              onClick={() => handleSelectDemoAccount('kai_chen')}
+              className="p-2.5 rounded-2xl bg-white/70 hover:bg-white border border-[#D5E3F3] hover:border-[#DDD6FE] shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] text-left flex items-center gap-2.5 group disabled:opacity-60"
             >
               <div className="w-8 h-8 rounded-full bg-[#EDE9FE] border border-[#DDD6FE] text-[#8B5CF6] flex items-center justify-center shrink-0">
                 <User className="w-4 h-4" strokeWidth={2} />
